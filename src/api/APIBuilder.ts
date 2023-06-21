@@ -4,6 +4,7 @@ require('dotenv').config();
 import * as swaggerUi from 'swagger-ui-express';
 const swaggerDocument = require('../../swagger.json');
 import * as core from 'express-serve-static-core';
+import router from './router';
 
 export class APIBuilder {
     build(): core.Express {
@@ -14,6 +15,8 @@ export class APIBuilder {
         const port: string = process.env.PORT!;
         
         app.listen(port, () => Logger.info(`API is listening on port ${process.env.PORT}.`, LogType.API));
+
+        app.use(router);
         
         
         // SWAGGER LOADER ----------

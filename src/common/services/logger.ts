@@ -52,7 +52,7 @@ export class _FileLogger implements Logger {
         } catch (err) {
             console.log(
                 this.error(
-                    'Une erreur est survenue dans la génération du fichier de log. Ceux-ci seront donc affichés ci-dessous : ',
+                    'An error has occured during log file generation. Logs : ',
                     LogType.BUSINESS
                 )
             );
@@ -66,13 +66,9 @@ export class _FileLogger implements Logger {
         if (!this.logFolder) console.log(log);
 
         const config = this.logConfig.find((log) => log.logType === type);
-        const allConfig = this.logConfig.find((log) => log.logType === LogType.API);
 
         if (!this.logFolder || !config) return;
 
-        if (type != LogType.API && allConfig) {
-            appendFileSync(join(this.logFolder, allConfig.fileName), log);
-        }
         appendFileSync(join(this.logFolder, config.fileName), log);
     }
 
