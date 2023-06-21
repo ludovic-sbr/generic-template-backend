@@ -1,0 +1,53 @@
+{
+    "openapi": "3.0.0",
+    "servers": [],
+    "info": {
+        "title": "RageMP UCP API",
+        "description": "RageMP Roleplay project ucp API.",
+        "version": "0.0.1"
+    },
+    "tags": [
+        {
+            "name": "Info"
+        }
+    ],
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "Info"
+                ],
+                "summary": "Show API information",
+                "description": "This is a public route",
+                "operationId": "showApiInfo",
+                "responses": {
+                    "200": {
+                        "description": "ok"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "requestBodies": {
+            "NewUser": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/NewUser"
+                        }
+                    }
+                },
+                "description": "User object that needs to be added to the database",
+                "required": true
+            }
+        },
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            }
+        },
+        "schemas": {}
+    }
+}
