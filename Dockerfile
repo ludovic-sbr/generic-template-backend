@@ -1,14 +1,31 @@
-FROM node:16.14.2-alpine AS NPM_TOOL_CHAIN
+FROM node as builder
 
-WORKDIR /usr/app
+# Create app directory
+WORKDIR /usr/src/app
 
-ENV PATH /usr/app/node_modules/.bin:$PATH
+# Install app dependencies
+COPY . .
+
+RUN npm ci
 
 COPY . .
-RUN npm i
 
 RUN npm run build
 
-EXPOSE 3000
+FROM node:slim
 
-CMD [ "node", "dist/index.js" ]
+ENV NODE_ENV production
+USER node
+
+# Create app directory
+WORKDIR /usr/src/app
+
+# Install app dependencies
+COPY . .
+
+RUN npm ci --production
+
+COPY --from=builder /usr/src/app/dist ./dist
+
+EXPOSE 8080
+CMD [ "node", "dist/src/index.js" ]

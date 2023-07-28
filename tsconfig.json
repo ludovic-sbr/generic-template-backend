@@ -7,8 +7,9 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "resolveJsonModule": true,
+    "allowJs": true
   },
-  "include": ["./package*.json", "src/api/api.ts", "src/**/*.ts"],
+  "include": ["src/**/*", "./package*.json", "./swagger.json"],
   "exclude": ["node_modules"]
 }
