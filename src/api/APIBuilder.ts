@@ -6,13 +6,18 @@ import router from './router';
 import { config } from '../common/config/main';
 import { openapiSpecification } from '../common/config/swagger';
 import cookieParser from 'cookie-parser';
+import db from '../database';
 
 export class APIBuilder {
-  build(): core.Express {
+  async build(): Promise<core.Express> {
     Logger.info(
       `Starting ${config.apiName} on port ${config.apiPort}. Production : ${String(config.prod)}`,
       LogType.API,
     );
+
+    // DATABASE instanciation
+    Logger.info('Connection to database ...', LogType.API);
+    await db.initialize();
 
     // GENERAL API INSTANTIATION
     const app = express();

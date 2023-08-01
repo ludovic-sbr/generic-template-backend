@@ -1,8 +1,10 @@
-import express, { Router } from 'express';
+import { Router } from 'express';
 import { UserController } from './controllers/user.controller';
 import { AuthController } from './controllers/auth.controller';
+import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
+import { RoleNameEnum } from './models';
 
-const router: Router = express.Router();
+const router: Router = Router();
 
 // AUTHENTICATION _______________________________________________
 /**
@@ -19,8 +21,6 @@ const router: Router = express.Router();
  *                      schema:
  *                          type: object
  *                          properties:
- *                              username:
- *                                  type: string
  *                              email:
  *                                  type: string
  *                              password:
@@ -46,8 +46,6 @@ router.post('/login', AuthController.login);
  *                      schema:
  *                          type: object
  *                          properties:
- *                              username:
- *                                  type: string
  *                              email:
  *                                  type: string
  *                              password:
@@ -86,7 +84,7 @@ router.post('/user', UserController.register);
  *              200:
  *                  description: Ok
  */
-router.patch('/user/:id', UserController.update);
+router.patch('/user/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.update);
 
 /**
  * @openapi
@@ -105,6 +103,6 @@ router.patch('/user/:id', UserController.update);
  *              200:
  *                  description: Ok
  */
-router.delete('/user/:id', UserController.delete);
+router.delete('/user/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.delete);
 
 export default router;

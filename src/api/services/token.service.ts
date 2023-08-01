@@ -1,10 +1,14 @@
-import { AuthFactory, AuthToken } from '../models/auth.model';
-import jwt from 'jsonwebtoken';
-import { User } from '../models/user.model';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { User, AuthToken, AuthFactory } from '../models';
 import { config } from '../../common/config/main';
+import { IncomingHttpHeaders } from 'http';
+import { BusinessError } from '../../common/errors/business.error';
 
 export interface TokenService {
   generate(user: User): AuthToken;
+  extractTokenFromHeaders(headers: IncomingHttpHeaders): string;
+  validate(token: string): JwtPayload;
+  extractUserFromDecodedToken(decodedToken: JwtPayload): Promise<User>;
 }
 
 class _TokenService implements TokenService {
@@ -21,12 +25,41 @@ class _TokenService implements TokenService {
         user_email: user.email,
       },
       config.jwtSecret,
-      { subject: user.username, expiresIn: '1d', issuer: config.apiName, algorithm: 'HS256' },
+      { subject: user.email, expiresIn: '1d', issuer: config.apiName, algorithm: 'HS256' },
     );
 
     const auth: AuthToken = AuthFactory.token(authToken, expirationDate);
 
     return auth;
+  }
+
+  public extractTokenFromHeaders(headers: IncomingHttpHeaders): string {
+    if (!headers.authorization || headers.authorization.split(' ')[0] !== 'Bearer')
+      throw new BusinessError('Bearer not found in authorization header.');
+
+    return headers.authorization.split(' ')[1];
+  }
+
+  public validate(token: string): JwtPayload {
+    try {
+      return jwt.verify(token, config.jwtSecret) as JwtPayload;
+    } catch (err) {
+      throw new BusinessError('Invalid authentication token.');
+    }
+  }
+
+  public async extractUserFromDecodedToken(decodedToken: JwtPayload): Promise<User> {
+    const userEmail: string = (decodedToken as JwtPayload).user_email;
+
+    const user = await User.findOne({
+      where: {
+        email: userEmail,
+      },
+    });
+
+    if (!user) throw new BusinessError('User does not exists.');
+
+    return user;
   }
 }
 

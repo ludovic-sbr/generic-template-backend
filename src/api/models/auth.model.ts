@@ -1,6 +1,11 @@
-export interface AuthToken {
+export default interface AuthToken {
   token: string;
   expires: Date;
+}
+
+export interface AuthDTO {
+  email: string;
+  password: string;
 }
 
 export interface AuthFactory {
