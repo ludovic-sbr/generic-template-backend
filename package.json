@@ -1,7 +1,7 @@
 {
-  "name": "ucp-backend",
+  "name": "generic-template-api",
   "version": "0.0.1",
-  "description": "API de l'ucp ragemp-roleplay.",
+  "description": "",
   "main": "src/index.ts",
   "scripts": {
     "dev": "npx tsc & nodemon",
@@ -39,7 +39,7 @@
     "mocha": "^10.2.0",
     "nodemon": "^2.0.22",
     "tslib": "^2.5.3",
-    "typescript": "^5.1.3"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^5.60.1",

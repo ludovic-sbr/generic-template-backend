@@ -4,9 +4,9 @@ FROM node as builder
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY . .
+COPY package.json package-lock.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
@@ -21,11 +21,11 @@ USER node
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY . .
+COPY package.json package-lock.json ./
 
-RUN npm ci --production
+RUN npm install
 
 COPY --from=builder /usr/src/app/dist ./dist
 
 EXPOSE 8080
-CMD [ "node", "dist/src/index.js" ]
+CMD [ "node", "dist/index.js" ]
