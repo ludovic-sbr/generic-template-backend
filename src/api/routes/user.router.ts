@@ -1,37 +1,10 @@
 import { Router } from 'express';
-import { UserController } from './controllers/user.controller';
-import { AuthController } from './controllers/auth.controller';
-import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
-import { RoleNameEnum } from './models';
+import { AuthenticationMiddleware } from '../middlewares/authentication.middleware';
+import { RoleNameEnum } from '../models';
+import { UserController } from '../controllers/user.controller';
 
-const router: Router = Router();
+const userRouter: Router = Router();
 
-// AUTHENTICATION _______________________________________________
-/**
- * @openapi
- * /login:
- *      post:
- *          summary: Login user
- *          tags:
- *              - Authentication
- *          requestBody:
- *              required: true
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              email:
- *                                  type: string
- *                              password:
- *                                  type: string
- *          responses:
- *              200:
- *                  description: Created
- */
-router.post('/login', AuthController.login);
-
-// USER _______________________________________________
 /**
  * @openapi
  * /user:
@@ -54,7 +27,7 @@ router.post('/login', AuthController.login);
  *              201:
  *                  description: Created
  */
-router.post('/user', UserController.register);
+userRouter.post('/', UserController.register);
 
 /**
  * @openapi
@@ -84,7 +57,7 @@ router.post('/user', UserController.register);
  *              200:
  *                  description: Ok
  */
-router.patch('/user/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.update);
+userRouter.patch('/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.update);
 
 /**
  * @openapi
@@ -103,6 +76,6 @@ router.patch('/user/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.A
  *              200:
  *                  description: Ok
  */
-router.delete('/user/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.delete);
+userRouter.delete('/:id', AuthenticationMiddleware.requiredRoles([RoleNameEnum.ADMIN]), UserController.delete);
 
-export default router;
+export default userRouter;

@@ -14,7 +14,5 @@ Logger.setModule('CORE');
 
 Logger.setFolder(resolve(config.logsFolder, String(Date.now())));
 
-if (Logger.isConfigured()) Logger.info('Logging system set up.', LogType.API);
-
 // API RUN ------------------------
 apiBuilder.build();
