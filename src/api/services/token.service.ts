@@ -22,10 +22,10 @@ class _TokenService implements TokenService {
 
     const authToken: string = jwt.sign(
       {
-        user_email: user.email,
+        uid: user.uid,
       },
       config.jwtSecret,
-      { subject: user.email, expiresIn: '1d', issuer: config.apiName, algorithm: 'HS256' },
+      { subject: user.uid, expiresIn: '1d', issuer: config.apiName, algorithm: 'HS256' },
     );
 
     const auth: AuthToken = AuthFactory.token(authToken, expirationDate);
@@ -49,11 +49,11 @@ class _TokenService implements TokenService {
   }
 
   public async extractUserFromDecodedToken(decodedToken: JwtPayload): Promise<User> {
-    const userEmail: string = (decodedToken as JwtPayload).user_email;
+    const userUid: string = (decodedToken as JwtPayload).uid;
 
     const user = await User.findOne({
       where: {
-        email: userEmail,
+        uid: userUid,
       },
     });
 
