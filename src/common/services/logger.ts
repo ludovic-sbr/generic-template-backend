@@ -15,6 +15,7 @@ interface Logger {
 export enum LogType {
   API,
   BUSINESS,
+  DB,
 }
 
 interface LoggerConfig {
@@ -26,7 +27,7 @@ export class _FileLogger implements Logger {
   private logConfig: LoggerConfig[] = [];
   private logFolder: string | undefined;
   private module = 'GENERIC';
-  private types: LogType[] = [LogType.API, LogType.BUSINESS];
+  private types: LogType[] = [LogType.API, LogType.BUSINESS, LogType.DB];
 
   configure(fn: (type: LogType) => string): LoggerConfig[] {
     this.logConfig = this.types.map((type: LogType) => ({

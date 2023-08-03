@@ -1,10 +1,14 @@
 import bcrypt from 'bcrypt';
 import { BusinessError } from '../../common/errors/business.error';
-import { User, UserDTO } from '../models';
+import { User } from '../models';
 import Role from '../models/role.model';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface UserService {
-  create(userDTO: UserDTO): Promise<User>;
+  getAll(): Promise<User[]>;
+  getById(id: number): Promise<User>;
+  create(input: User): Promise<User>;
+  update(id: number, input: User): Promise<User>;
   deleteById(id: number): Promise<User>;
 }
 
@@ -14,34 +18,109 @@ class _UserService implements UserService {
   );
 
   /**
+   * Get a specific user.
+   */
+  public async getAll(): Promise<User[]> {
+    const users: User[] = await User.findAll();
+
+    return users;
+  }
+
+  /**
+   * Get a specific user.
+   *
+   * @param id
+   */
+  public async getById(id: number): Promise<User> {
+    const user = await User.findByPk(id);
+
+    if (!user) throw new BusinessError('User does not exists.');
+
+    return user;
+  }
+
+  /**
    * Creates a new user.
    *
    * @param user
    */
-  public async create(userDTO: UserDTO): Promise<User> {
-    this.validateEmail(userDTO.email, this.emailRegex);
+  public async create(input: User): Promise<User> {
+    this.validateEmail(input.email, this.emailRegex);
 
     const existingUser = await User.findOne({
       where: {
-        email: userDTO.email,
+        email: input.email,
       },
     });
 
     if (existingUser) throw new BusinessError('User already exists.');
 
-    const cryptedPassword = await bcrypt.hash(userDTO.password, 10);
+    const cryptedPassword = await bcrypt.hash(input.password, 10);
 
-    const role = await Role.findByPk(userDTO.roleId);
+    const role = await Role.findByPk(input.roleId);
 
-    if (!role) throw new BusinessError(`Role id '${userDTO.roleId}' does not exists.`);
+    if (!role) throw new BusinessError(`Role id '${input.roleId}' does not exists.`);
+
+    const uid: string = await this.generateUid();
 
     const createdUser = await User.create({
-      email: userDTO.email,
+      uid: uid,
+      email: input.email,
       password: cryptedPassword,
       roleId: role.id,
     });
 
-    return createdUser;
+    return createdUser.reload();
+  }
+
+  /**
+   * Updates a specific user.
+   *
+   * @param id
+   * @param user
+   */
+  public async update(id: number, input: User): Promise<User> {
+    const user = await User.findByPk(id);
+
+    if (!user) throw new BusinessError('User does not exists.');
+
+    // for(let key in input) {
+    //   if (user.dataValues[key] !== input.dataValues[key]) {
+    //     user.dataValues[key] = input.dataValues[key]
+    //   }
+    // }
+
+    if (input.email !== user.email) {
+      this.validateEmail(input.email, this.emailRegex);
+
+      const existingUser = await User.findOne({
+        where: {
+          email: input.email,
+        },
+      });
+
+      if (existingUser) throw new BusinessError('User already exists.');
+
+      user.email = input.email;
+    }
+
+    if (input.password) {
+      const cryptedPassword = await bcrypt.hash(input.password, 10);
+
+      user.password = cryptedPassword;
+    }
+
+    if (input.roleId !== user.roleId) {
+      const role = await Role.findByPk(input.roleId);
+
+      if (!role) throw new BusinessError(`Role id '${input.roleId}' does not exists.`);
+
+      user.roleId = role.id;
+    }
+
+    await user.save();
+
+    return user.reload();
   }
 
   /**
@@ -62,6 +141,20 @@ class _UserService implements UserService {
   private validateEmail(email: string, regex: RegExp): boolean {
     if (!regex.test(email)) throw new BusinessError('Invalid email format.');
     return true;
+  }
+
+  private async generateUid(): Promise<string> {
+    const users: User[] = await User.findAll();
+
+    const uid_list: string[] = users.map((user) => {
+      return user.uid;
+    });
+
+    let uid: string = uuidv4();
+
+    while (uid_list.includes(uid)) uid = uuidv4();
+
+    return uid;
   }
 }
 

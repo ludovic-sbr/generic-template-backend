@@ -10,6 +10,12 @@ export default class User extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
+  declare uid: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
   declare email: string;
 
   @Column({
@@ -26,8 +32,13 @@ export default class User extends Model {
   declare role: Role;
 }
 
-export interface UserDTO {
+export interface UserDto {
+  uid: string;
   email: string;
   password: string;
   roleId: number;
 }
+
+export interface CreateUserDto extends Omit<UserDto, 'uid'> {}
+
+export interface UpdateUserDto extends Partial<UserDto> {}
